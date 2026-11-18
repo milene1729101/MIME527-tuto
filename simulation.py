@@ -10,17 +10,18 @@ from haulage import make_fleet
 
 def choose_next(T, fleet, until):
     """Return (next time, reason): TCE, FEL or END."""
-    # TODO 1: Include the first truck time. A truck can win a tie only before until.
-    # The starter clock ignores truck events.
-    if until <= T:
-        return until, "END"
-    return T, "TCE"
+    F = fleet.next_time()
+    next_time = min(T, F, until)
+    if next_time == until:
+        return next_time, "END"
+    if F >= until or T < F - EPS:
+        return next_time, "TCE"
+    return next_time, "FEL"
 
 
 def run_truck_events(fleet, now, stock, until, trace):
     """Run the truck events due now and return their labels."""
-    # TODO 2: Call the fleet handler. The clock is already at now.
-    raise NotImplementedError("Connect the truck-event handler here.")
+    return fleet.handle_due(now, stock, until, trace)
 
 
 class Record(NamedTuple):
