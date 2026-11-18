@@ -15,13 +15,23 @@ class StockpileTests(unittest.TestCase):
         # The pump runs for one more hour after blending stops.
         self.assertAlmostEqual(last.ore1, 36.0)
 
-    @unittest.skip("Exercise: write the first delivery test, then remove this line.")
     def test_first_delivery(self):
         rows = simulate(until=3.25)
-        # Find A:HAUL_DONE at 2 h and A:UNLOAD_DONE at 3 h in the event records.
-        # At 2 h the stock stays at 16 t. At 3 h it rises from 8 t to 24 t.
-        # Check that the plant has made 60 t by 3 h.
-        self.fail("Replace this line with your checks for the two events.")
+        by_time = {row.time: row for row in rows}
+
+        self.assertIn(2.0, by_time, "Expected a record at 2 h")
+        arrival = by_time[2.0]
+        self.assertIn("A:HAUL_DONE", arrival.events)
+        self.assertAlmostEqual(arrival.ore2_before, 16.0)
+        self.assertAlmostEqual(arrival.ore2, 16.0)
+        self.assertAlmostEqual(arrival.produced, 40.0)
+
+        self.assertIn(3.0, by_time, "Expected a record at 3 h")
+        unloading = by_time[3.0]
+        self.assertIn("A:UNLOAD_DONE", unloading.events)
+        self.assertAlmostEqual(unloading.ore2_before, 8.0)
+        self.assertAlmostEqual(unloading.ore2, 24.0)
+        self.assertAlmostEqual(unloading.produced, 60.0)
 
 
 if __name__ == "__main__":
